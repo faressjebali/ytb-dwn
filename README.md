@@ -52,7 +52,7 @@ For Windows
    python install.py
    ```
 5. When prompted to "Enter a directory in your PATH", enter the path to the folder you just created (C:\ytb-dwn). For example:
-  ```bash
+   ```bash
    Enter a directory in your PATH (e.g., C:\\Windows\\System32): C:\ytb-dwn
    ```
 6. After the installation is complete, you can use the tool by typing:

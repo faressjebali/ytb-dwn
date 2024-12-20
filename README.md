@@ -18,7 +18,7 @@ A simple cli tool to download music from YouTube using `yt-dlp`.
 For Linux/macOS
 1. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/ytb-dwn.git
+   git clone https://github.com/faressjebali/ytb-dwn.git
    cd ytb-dwn
    ```
 2. Run the installer:
@@ -39,7 +39,7 @@ For Windows
 
 4. Clone this repository:
    ```bash
-   git clone https://github.com/your-username/ytb-dwn.git
+   git clone https://github.com/faressjebali/ytb-dwn.git
    cd ytb-dwn
    ```
 5. Run the installer:

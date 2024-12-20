@@ -5,16 +5,25 @@ import sys
 import subprocess
 
 def install_script():
-    script_name = "ytb-dwn.py"  
-    batch_name = "ytb-dwn.bat" 
+    script_name = "ytb-dwn.py"
+    batch_name = "ytb-dwn.bat"
     script_path = os.path.abspath(script_name)
 
     if platform.system() == "Linux" or platform.system() == "Darwin":  # macOS/Linux
         dest = "/usr/local/bin/"
         try:
+            # Copy the script to /usr/local/bin
             shutil.copy(script_path, dest)
+            
+            # Make the script executable
             os.chmod(os.path.join(dest, script_name), 0o755)
-            print(f"Installed {script_name} to {dest}")
+
+            # Create a symlink for easier usage (ytb-dwn command)
+            symlink_path = os.path.join(dest, "ytb-dwn")
+            if not os.path.exists(symlink_path):
+                os.symlink(os.path.join(dest, script_name), symlink_path)
+
+            print(f"Installed {script_name} and created symlink 'ytb-dwn' in {dest}")
         except PermissionError:
             print("Permission denied. Try running with sudo.")
     elif platform.system() == "Windows":  # Windows
@@ -35,4 +44,3 @@ def install_script():
 
 if __name__ == "__main__":
     install_script()
-

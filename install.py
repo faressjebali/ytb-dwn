@@ -3,46 +3,13 @@ import shutil
 import platform
 import sys
 import subprocess
-import ctypes
 
 def install_script():
-    script_name = "ytb-dwn.py"  # Python script for downloading music
-    batch_name = "ytb-dwn.bat"  # Batch file for Windows
+    script_name = "ytb-dwn.py"  
+    batch_name = "ytb-dwn.bat" 
     script_path = os.path.abspath(script_name)
 
-    if platform.system() == "Windows":  # Windows-specific logic
-        # Use the AppData folder for installation, which doesn't require elevated privileges
-        install_dir = os.path.join(os.environ["APPDATA"], "ytb-dwn")
-        
-        # Create the directory if it doesn't exist
-        if not os.path.exists(install_dir):
-            os.makedirs(install_dir)
-
-        # Copy the Python script to the folder
-        shutil.copy(script_path, install_dir)
-
-        # Create the batch file to execute the script
-        batch_content = f'@echo off\npython "{os.path.join(install_dir, script_name)}" %*\n'
-        with open(os.path.join(install_dir, batch_name), 'w') as batch_file:
-            batch_file.write(batch_content)
-
-        print(f"Installed {script_name} and {batch_name} to {install_dir}")
-
-        # Check if the folder is already in the PATH environment variable
-        path_env = os.environ.get("PATH", "")
-        if install_dir not in path_env:
-            # Add the folder to the PATH environment variable for the current user
-            add_to_path(install_dir)
-
-            # Check if adding to PATH was successful
-            if is_path_updated(install_dir):
-                print(f"Added {install_dir} to your PATH environment variable.")
-            else:
-                print(f"Failed to add {install_dir} to PATH.")
-        else:
-            print(f"{install_dir} is already in your PATH.")
-    
-    elif platform.system() == "Linux" or platform.system() == "Darwin":  # macOS/Linux
+    if platform.system() == "Linux" or platform.system() == "Darwin":  # macOS/Linux
         dest = "/usr/local/bin/"
         try:
             shutil.copy(script_path, dest)
@@ -50,47 +17,22 @@ def install_script():
             print(f"Installed {script_name} to {dest}")
         except PermissionError:
             print("Permission denied. Try running with sudo.")
+    elif platform.system() == "Windows":  # Windows
+        dest = input("Enter a directory in your PATH (e.g., C:\\Windows\\System32): ")
+
+        if os.path.isdir(dest):
+            batch_content = f'@echo off\npython "{os.path.abspath(script_name)}" %*\n'
+            with open(os.path.join(dest, batch_name), 'w') as batch_file:
+                batch_file.write(batch_content)
+
+            shutil.copy(script_path, dest)
+
+            print(f"Installed {script_name} and {batch_name} to {dest}")
+        else:
+            print("Invalid directory. Make sure it's in your PATH.")
     else:
         print(f"Unsupported OS: {platform.system()}")
 
-def add_to_path(new_path):
-    """ Add new directory to PATH in Windows (for current user) """
-    # Get the current PATH variable
-    path_env = os.environ.get("PATH", "")
-    # Add the new path if it's not already in PATH
-    if new_path not in path_env:
-        # Open the registry key for environment variables (HKEY_CURRENT_USER\Environment)
-        reg_key = r"Environment"
-        reg_value_name = "PATH"
-        
-        # Define a pointer to store the registry key handle
-        hkey = ctypes.c_void_p()
-
-        # Open the registry key (HKEY_CURRENT_USER\Environment)
-        result = ctypes.windll.advapi32.RegOpenKeyExW(0x80000001, reg_key, 0, 0x20019, ctypes.byref(hkey))
-        if result == 0:
-            # Query the current value of PATH
-            current_path = ctypes.create_unicode_buffer(1024)
-            current_size = ctypes.c_uint(1024)
-            ctypes.windll.advapi32.RegQueryValueExW(hkey, reg_value_name, 0, None, current_path, ctypes.byref(current_size))
-            
-            # Add new_path to the current PATH
-            if current_path.value:
-                new_value = current_path.value + ";" + new_path
-            else:
-                new_value = new_path
-
-            # Set the updated value for PATH
-            ctypes.windll.advapi32.RegSetValueExW(hkey, reg_value_name, 0, 1, new_value, len(new_value) * 2)  # Unicode characters are 2 bytes each
-            ctypes.windll.advapi32.RegCloseKey(hkey)
-            print(f"Added {new_path} to the PATH.")
-        else:
-            print(f"Failed to open registry key {reg_key}. Error code: {result}")
-
-def is_path_updated(path_to_check):
-    """ Check if the given directory is in the PATH environment variable. """
-    return path_to_check in os.environ.get("PATH", "")
-
-if __name__ == "__main__":
+if _name_ == "_main_":
     install_script()
 

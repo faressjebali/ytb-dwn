@@ -59,32 +59,33 @@ def add_to_path(new_path):
     path_env = os.environ.get("PATH", "")
     # Add the new path if it's not already in PATH
     if new_path not in path_env:
-        # Update PATH for the current user by modifying the environment variable
-        user_profile = os.environ.get("USERPROFILE", "")
-        if user_profile:
-            # Accessing the registry key for the environment variables
-            reg_key = r"Environment"
-            reg_value_name = "PATH"
-            
-            # Opening the registry key for modification (HKEY_CURRENT_USER\Environment)
-            key = ctypes.windll.advapi32.RegOpenKeyExW(0x80000001, reg_key, 0, 0x20019, ctypes.pointer(ctypes.windll.kernel32.GetCurrentProcess()))
-            if key:
-                current_path = ctypes.create_unicode_buffer(1024)
-                current_size = ctypes.c_uint(1024)
-                ctypes.windll.advapi32.RegQueryValueExW(key, reg_value_name, 0, None, current_path, ctypes.byref(current_size))
-                
-                # Add new_path to the current PATH
-                if current_path.value:
-                    new_value = current_path.value + ";" + new_path
-                else:
-                    new_value = new_path
+        # Open the registry key for environment variables (HKEY_CURRENT_USER\Environment)
+        reg_key = r"Environment"
+        reg_value_name = "PATH"
+        
+        # Define a pointer to store the registry key handle
+        hkey = ctypes.c_void_p()
 
-                # Set the updated value for PATH
-                ctypes.windll.advapi32.RegSetValueExW(key, reg_value_name, 0, 1, new_value, len(new_value))
-                ctypes.windll.advapi32.RegCloseKey(key)
-                print(f"Added {new_path} to the PATH.")
+        # Open the registry key (HKEY_CURRENT_USER\Environment)
+        result = ctypes.windll.advapi32.RegOpenKeyExW(0x80000001, reg_key, 0, 0x20019, ctypes.byref(hkey))
+        if result == 0:
+            # Query the current value of PATH
+            current_path = ctypes.create_unicode_buffer(1024)
+            current_size = ctypes.c_uint(1024)
+            ctypes.windll.advapi32.RegQueryValueExW(hkey, reg_value_name, 0, None, current_path, ctypes.byref(current_size))
+            
+            # Add new_path to the current PATH
+            if current_path.value:
+                new_value = current_path.value + ";" + new_path
+            else:
+                new_value = new_path
+
+            # Set the updated value for PATH
+            ctypes.windll.advapi32.RegSetValueExW(hkey, reg_value_name, 0, 1, new_value, len(new_value) * 2)  # Unicode characters are 2 bytes each
+            ctypes.windll.advapi32.RegCloseKey(hkey)
+            print(f"Added {new_path} to the PATH.")
         else:
-            print(f"Could not find the user's profile directory.")
+            print(f"Failed to open registry key {reg_key}. Error code: {result}")
 
 def is_path_updated(path_to_check):
     """ Check if the given directory is in the PATH environment variable. """
@@ -92,3 +93,4 @@ def is_path_updated(path_to_check):
 
 if __name__ == "__main__":
     install_script()
+

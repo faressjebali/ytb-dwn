@@ -11,8 +11,8 @@ def install_script():
     script_path = os.path.abspath(script_name)
 
     if platform.system() == "Windows":  # Windows-specific logic
-        # Set default installation folder in Program Files
-        install_dir = os.path.join(os.environ["ProgramFiles"], "ytb-dwn")
+        # Use the AppData folder for installation, which doesn't require elevated privileges
+        install_dir = os.path.join(os.environ["APPDATA"], "ytb-dwn")
         
         # Create the directory if it doesn't exist
         if not os.path.exists(install_dir):
@@ -76,3 +76,4 @@ def is_path_updated(path_to_check):
 
 if __name__ == "__main__":
     install_script()
+

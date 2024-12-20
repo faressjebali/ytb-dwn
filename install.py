@@ -62,11 +62,27 @@ def add_to_path(new_path):
         # Update PATH for the current user by modifying the environment variable
         user_profile = os.environ.get("USERPROFILE", "")
         if user_profile:
-            reg_key = r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
-            key = ctypes.windll.advapi32.RegOpenKeyExW(ctypes.windll.advapi32.HKEY_CURRENT_USER, reg_key, 0, 0x20019, ctypes.pointer(ctypes.windll.advapi32.HKEY_CURRENT_USER))
-            ctypes.windll.advapi32.RegSetValueExW(key, r"PATH", 0, 1, new_path)
-            ctypes.windll.advapi32.RegCloseKey(key)
-            print(f"Added {new_path} to the PATH.")
+            # Accessing the registry key for the environment variables
+            reg_key = r"Environment"
+            reg_value_name = "PATH"
+            
+            # Opening the registry key for modification (HKEY_CURRENT_USER\Environment)
+            key = ctypes.windll.advapi32.RegOpenKeyExW(0x80000001, reg_key, 0, 0x20019, ctypes.pointer(ctypes.windll.kernel32.GetCurrentProcess()))
+            if key:
+                current_path = ctypes.create_unicode_buffer(1024)
+                current_size = ctypes.c_uint(1024)
+                ctypes.windll.advapi32.RegQueryValueExW(key, reg_value_name, 0, None, current_path, ctypes.byref(current_size))
+                
+                # Add new_path to the current PATH
+                if current_path.value:
+                    new_value = current_path.value + ";" + new_path
+                else:
+                    new_value = new_path
+
+                # Set the updated value for PATH
+                ctypes.windll.advapi32.RegSetValueExW(key, reg_value_name, 0, 1, new_value, len(new_value))
+                ctypes.windll.advapi32.RegCloseKey(key)
+                print(f"Added {new_path} to the PATH.")
         else:
             print(f"Could not find the user's profile directory.")
 
@@ -76,4 +92,3 @@ def is_path_updated(path_to_check):
 
 if __name__ == "__main__":
     install_script()
-

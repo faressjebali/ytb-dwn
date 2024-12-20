@@ -5,7 +5,7 @@ import sys
 import subprocess
 
 def install_script():
-    script_name = "ytb-dwn"  
+    script_name = "ytb-dwn.py"  
     batch_name = "ytb-dwn.bat" 
     script_path = os.path.abspath(script_name)
 

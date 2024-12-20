@@ -35,12 +35,7 @@ For Linux/macOS
 For Windows
 1. Create a new folder called ytb-dwn in your C:\ drive (for example, C:\ytb-dwn).
    
-2. Add the new folder (C:\ytb-dwn) to your system's PATH so that you can use the ytb-dwn command from anywhere. Here's how to do it:
-.  Press Win + R, type sysdm.cpl, and press Enter to open System Properties.
-.  Go to the Advanced tab and click on Environment Variables.
-.  Under System Variables, scroll down and select Path, then click Edit.
-.  Click New, then add the full path of the ytb-dwn folder (e.g., C:\ytb-dwn).
-.  Click OK to save the changes.
+2. Add the new folder (C:\ytb-dwn) to your system's PATH so that you can use the ytb-dwn command from anywhere.
 
 4. Clone this repository:
    ```bash
